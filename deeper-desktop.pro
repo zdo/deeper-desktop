@@ -24,15 +24,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
+INCLUDEPATH += /usr/local/include
+LIBS += -L/usr/local/lib -ldeeper
+
 SOURCES += \
         main.cpp \
-        MainWindow.cpp
+        MainWindow.cpp \
+    CategoriesTreeWidget.cpp \
+    CategoryTreeItemWidget.cpp
 
 HEADERS += \
-        MainWindow.hpp
+        MainWindow.hpp \
+    CategoriesTreeWidget.hpp \
+    CategoryTreeItemWidget.hpp \
+    ClickableLabel.hpp
 
 FORMS += \
-        MainWindow.ui
+        MainWindow.ui \
+    CategoryTreeItemWidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

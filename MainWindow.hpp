@@ -2,6 +2,7 @@
 #define MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include <libdeeper/libdeeper.hpp>
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +18,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+    QSharedPointer<deeper::Database> m_database;
 };
 
 #endif // MAINWINDOW_HPP
