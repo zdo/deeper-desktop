@@ -4,6 +4,7 @@
 #include <QTreeWidget>
 
 #include <libdeeper/libdeeper.hpp>
+#include "CategoryTreeItemWidget.hpp"
 
 class CategoriesTreeWidget : public QTreeWidget
 {
@@ -22,6 +23,7 @@ private:
     void dropEvent(QDropEvent *event) override;
 
     void addTreeItem(QSharedPointer<deeper::Category> category, QTreeWidgetItem *parent = nullptr, bool recursive = true);
+    CategoryTreeItemWidget * createWidget(QTreeWidgetItem *item);
 };
 
 #endif // CATEGORIESTREEWIDGET_HPP

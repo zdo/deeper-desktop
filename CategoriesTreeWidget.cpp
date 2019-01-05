@@ -53,15 +53,31 @@ void CategoriesTreeWidget::dropEvent(QDropEvent *event)
         dstCategory = dstWidget->category();
     }
 
+    auto removeSrcItemFromParent = [=]() {
+        auto srcItemParent = srcItem->parent();
+        if (srcItemParent) {
+            srcItem->parent()->takeChild(srcItemParent->indexOfChild(srcItem));
+        } else {
+            this->takeTopLevelItem(this->indexOfTopLevelItem(srcItem));
+        }
+    };
+
     // What kind of operation do we want to do?
     auto dropIndicator = this->dropIndicatorPosition();
     if (dropIndicator == OnViewport) {
-        m_database->setCategoryParent(srcCategory, nullptr);
+        if (!m_database->setCategoryParent(srcCategory, nullptr)) {
+            return;
+        }
+        removeSrcItemFromParent();
         this->addTopLevelItem(srcItem);
     } else if (!dstCategory.isNull()) {
         switch (dropIndicator) {
         case OnItem:
-            m_database->setCategoryParent(srcCategory, dstCategory);
+            if (!m_database->setCategoryParent(srcCategory, dstCategory)) {
+                return;
+            }
+            removeSrcItemFromParent();
+            dstItem->addChild(srcItem);
             break;
         case AboveItem:
         case BelowItem:
@@ -71,7 +87,19 @@ void CategoriesTreeWidget::dropEvent(QDropEvent *event)
                     ? m_database->categoriesTree().indexOf(dstCategory)
                     : parent->children().indexOf(dstCategory);
             int targetIndex = dstIndex + ((dropIndicator == AboveItem) ? 0 : 1);
-            m_database->setCategoryParent(srcCategory, parent, targetIndex);
+            if (!m_database->setCategoryParent(srcCategory, parent, targetIndex)) {
+                return;
+            }
+
+            removeSrcItemFromParent();
+            int finalIndex = parent.isNull()
+                    ? m_database->categoriesTree().indexOf(srcCategory)
+                    : parent->children().indexOf(srcCategory);
+            if (dstItem->parent()) {
+                dstItem->parent()->insertChild(finalIndex, srcItem);
+            } else {
+                this->insertTopLevelItem(finalIndex, srcItem);
+            }
         }
             break;
         default:
@@ -81,7 +109,28 @@ void CategoriesTreeWidget::dropEvent(QDropEvent *event)
         qCritical() << "Empty destination category on item-related drop indicator" << dropIndicator;
     }
 
-    this->refresh();
+    std::function<void (QTreeWidgetItem *item)> fn = [&](QTreeWidgetItem *item) {
+        this->createWidget(item);
+
+        for (int i = 0; i < item->childCount(); ++i) {
+            fn(item->child(i));
+        }
+    };
+
+    if (srcItem->parent()) {
+        srcItem->parent()->setExpanded(true);
+    }
+    while (!this->selectedItems().isEmpty()) {
+        this->selectedItems().first()->setSelected(false);
+    }
+    srcItem->setSelected(true);
+    srcItem->setExpanded(true);
+
+    fn(srcItem);
+
+    // This line is required due to the graphical glitch that occurs when you're moving
+    // some child item to the top-most root position.
+    this->resizeColumnToContents(0);
 }
 
 void CategoriesTreeWidget::addTreeItem(QSharedPointer<deeper::Category> category, QTreeWidgetItem *parent, bool recursive)
@@ -93,8 +142,22 @@ void CategoriesTreeWidget::addTreeItem(QSharedPointer<deeper::Category> category
         parent->addChild(item);
     }
 
+    item->setData(0, Qt::UserRole, category->id());
+    this->createWidget(item);
+
+    if (recursive) {
+        for (auto childCategory : category->children()) {
+            this->addTreeItem(childCategory, item);
+        }
+    }
+}
+
+CategoryTreeItemWidget *CategoriesTreeWidget::createWidget(QTreeWidgetItem *item)
+{
     auto widget = new CategoryTreeItemWidget();
     this->setItemWidget(item, 0, widget);
+    auto categoryId = item->data(0, Qt::UserRole).toString();
+    auto category = m_database->categoryWithId(categoryId);
     widget->setCategory(category);
 
     connect(widget, &CategoryTreeItemWidget::onAddChildRequest, this, [=]() {
@@ -104,15 +167,11 @@ void CategoriesTreeWidget::addTreeItem(QSharedPointer<deeper::Category> category
     });
     connect(widget, &CategoryTreeItemWidget::onDeleteRequest, this, [=]() {
         m_database->deleteCategory(category);
-        this->refresh();
+        delete item;
     });
     connect(widget, &CategoryTreeItemWidget::onChange, this, [=]() {
         m_database->saveCategoryTree();
     });
 
-    if (recursive) {
-        for (auto childCategory : category->children()) {
-            this->addTreeItem(childCategory, item);
-        }
-    }
+    return widget;
 }
