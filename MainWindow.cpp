@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_database.get(), &deeper::Database::onRefresh, this, [=]() {
         qDebug() << "Refreshed";
-        qDebug() << "Root categories count" << m_database->categoriesTree().count();
+        qDebug() << "Root categories count" << m_database->rootCategories().count();
 
         ui->categoriesTreeWidget->refresh();
     });

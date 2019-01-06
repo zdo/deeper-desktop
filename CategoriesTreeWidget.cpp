@@ -26,7 +26,7 @@ void CategoriesTreeWidget::refresh()
         return;
     }
 
-    for (auto category : m_database->categoriesTree()) {
+    for (auto category : m_database->rootCategories()) {
         this->addTreeItem(category);
     }
 }
@@ -82,19 +82,15 @@ void CategoriesTreeWidget::dropEvent(QDropEvent *event)
         case AboveItem:
         case BelowItem:
         {
-            auto parent = m_database->parentOfCategory(dstCategory);
-            int dstIndex = parent.isNull()
-                    ? m_database->categoriesTree().indexOf(dstCategory)
-                    : parent->children().indexOf(dstCategory);
+            int dstIndex = dstCategory->orderIndex();
             int targetIndex = dstIndex + ((dropIndicator == AboveItem) ? 0 : 1);
-            if (!m_database->setCategoryParent(srcCategory, parent, targetIndex)) {
+            if (!m_database->setCategoryParent(srcCategory, m_database->parentOfCategory(dstCategory), targetIndex)) {
                 return;
             }
 
             removeSrcItemFromParent();
-            int finalIndex = parent.isNull()
-                    ? m_database->categoriesTree().indexOf(srcCategory)
-                    : parent->children().indexOf(srcCategory);
+            int finalIndex = srcCategory->orderIndex();
+
             if (dstItem->parent()) {
                 dstItem->parent()->insertChild(finalIndex, srcItem);
             } else {
@@ -146,7 +142,7 @@ void CategoriesTreeWidget::addTreeItem(QSharedPointer<deeper::Category> category
     this->createWidget(item);
 
     if (recursive) {
-        for (auto childCategory : category->children()) {
+        for (auto childCategory : m_database->childrenOfCategory(category)) {
             this->addTreeItem(childCategory, item);
         }
     }
@@ -161,7 +157,7 @@ CategoryTreeItemWidget *CategoriesTreeWidget::createWidget(QTreeWidgetItem *item
     widget->setCategory(category);
 
     connect(widget, &CategoryTreeItemWidget::onAddChildRequest, this, [=]() {
-        auto newCategory = m_database->createCategory(category->id());
+        auto newCategory = m_database->createCategory(category);
         this->addTreeItem(newCategory, item, false);
         this->expandItem(item);
     });
@@ -170,7 +166,6 @@ CategoryTreeItemWidget *CategoriesTreeWidget::createWidget(QTreeWidgetItem *item
         delete item;
     });
     connect(widget, &CategoryTreeItemWidget::onChange, this, [=]() {
-        m_database->saveCategoryTree();
     });
 
     return widget;
