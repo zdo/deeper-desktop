@@ -166,6 +166,7 @@ CategoryTreeItemWidget *CategoriesTreeWidget::createWidget(QTreeWidgetItem *item
         delete item;
     });
     connect(widget, &CategoryTreeItemWidget::onChange, this, [=]() {
+        m_database->saveCategory(category);
     });
 
     return widget;
