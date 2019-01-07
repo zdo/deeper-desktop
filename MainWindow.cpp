@@ -10,16 +10,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QUrl url("file:///tmp/a.json");
     m_database = QSharedPointer<deeper::Database>::create(url);
-
-    connect(m_database.get(), &deeper::Database::onRefresh, this, [=]() {
-        qDebug() << "Refreshed";
-        qDebug() << "Root categories count" << m_database->rootCategories().count();
-
-        ui->categoriesTreeWidget->refresh();
-    });
+    m_database->refresh();
 
     ui->categoriesTreeWidget->setDatabase(m_database);
-    m_database->refresh();
 }
 
 MainWindow::~MainWindow()

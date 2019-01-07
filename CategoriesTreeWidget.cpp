@@ -26,7 +26,7 @@ void CategoriesTreeWidget::refresh()
         return;
     }
 
-    for (auto category : m_database->rootCategories()) {
+    for (auto category : m_database->categories()->rootObjects()) {
         this->addTreeItem(category);
     }
 }
@@ -84,7 +84,7 @@ void CategoriesTreeWidget::dropEvent(QDropEvent *event)
         {
             int dstIndex = dstCategory->orderIndex();
             int targetIndex = dstIndex + ((dropIndicator == AboveItem) ? 0 : 1);
-            if (!m_database->setCategoryParent(srcCategory, m_database->parentOfCategory(dstCategory), targetIndex)) {
+            if (!m_database->setCategoryParent(srcCategory, m_database->categories()->parent(dstCategory), targetIndex)) {
                 return;
             }
 
@@ -142,7 +142,7 @@ void CategoriesTreeWidget::addTreeItem(QSharedPointer<deeper::Category> category
     this->createWidget(item);
 
     if (recursive) {
-        for (auto childCategory : m_database->childrenOfCategory(category)) {
+        for (auto childCategory : m_database->categories()->children(category)) {
             this->addTreeItem(childCategory, item);
         }
     }
@@ -153,7 +153,7 @@ CategoryTreeItemWidget *CategoriesTreeWidget::createWidget(QTreeWidgetItem *item
     auto widget = new CategoryTreeItemWidget();
     this->setItemWidget(item, 0, widget);
     auto categoryId = item->data(0, Qt::UserRole).toString();
-    auto category = m_database->categoryWithId(categoryId);
+    auto category = m_database->categories()->objectWithId(categoryId);
     widget->setCategory(category);
 
     connect(widget, &CategoryTreeItemWidget::onAddChildRequest, this, [=]() {
