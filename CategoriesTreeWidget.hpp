@@ -14,6 +14,8 @@ public:
     QSharedPointer<deeper::Database> database() const;
     void setDatabase(const QSharedPointer<deeper::Database> &database);
 
+    QSharedPointer<deeper::Category> category(QTreeWidgetItem *item);
+
 public slots:
     void refresh();
 

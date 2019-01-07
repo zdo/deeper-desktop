@@ -31,19 +31,27 @@ SOURCES += \
         main.cpp \
         MainWindow.cpp \
     CategoriesTreeWidget.cpp \
-    CategoryTreeItemWidget.cpp
+    CategoryTreeItemWidget.cpp \
+    NoteTreeItemWidget.cpp \
+    NotesTreeWidget.cpp
 
 HEADERS += \
         MainWindow.hpp \
     CategoriesTreeWidget.hpp \
     CategoryTreeItemWidget.hpp \
-    ClickableLabel.hpp
+    ClickableLabel.hpp \
+    NoteTreeItemWidget.hpp \
+    NotesTreeWidget.hpp
 
 FORMS += \
         MainWindow.ui \
-    CategoryTreeItemWidget.ui
+    CategoryTreeItemWidget.ui \
+    NoteTreeItemWidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    Resources.qrc

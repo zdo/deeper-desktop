@@ -19,6 +19,8 @@ public:
     QSharedPointer<deeper::Category> category() const;
     void setCategory(const QSharedPointer<deeper::Category> &category);
 
+
+
 signals:
     void onAddChildRequest();
     void onDeleteRequest();

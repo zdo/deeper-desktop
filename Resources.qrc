@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Resources/move-grip.png</file>
+    </qresource>
+</RCC>

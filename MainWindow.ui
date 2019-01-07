@@ -13,10 +13,19 @@
   <property name="windowTitle">
    <string>Deeper</string>
   </property>
+  <property name="documentMode">
+   <bool>true</bool>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="CategoriesTreeWidget" name="categoriesTreeWidget">
+      <property name="maximumSize">
+       <size>
+        <width>300</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="palette">
        <palette>
         <active>
@@ -80,7 +89,59 @@
      </widget>
     </item>
     <item>
-     <widget class="QTreeWidget" name="treeWidget">
+     <widget class="NotesTreeWidget" name="notesTreeWidget">
+      <property name="palette">
+       <palette>
+        <active>
+         <colorrole role="Highlight">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>250</red>
+            <green>253</green>
+            <blue>233</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </active>
+        <inactive>
+         <colorrole role="Highlight">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>250</red>
+            <green>253</green>
+            <blue>233</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </inactive>
+        <disabled>
+         <colorrole role="Highlight">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>220</red>
+            <green>220</green>
+            <blue>220</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </disabled>
+       </palette>
+      </property>
+      <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="dragDropMode">
+       <enum>QAbstractItemView::DragDrop</enum>
+      </property>
+      <property name="indentation">
+       <number>40</number>
+      </property>
+      <property name="rootIsDecorated">
+       <bool>true</bool>
+      </property>
+      <attribute name="headerVisible">
+       <bool>false</bool>
+      </attribute>
       <column>
        <property name="text">
         <string notr="true">1</string>
@@ -122,6 +183,11 @@
    <class>CategoriesTreeWidget</class>
    <extends>QTreeWidget</extends>
    <header>CategoriesTreeWidget.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>NotesTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>NotesTreeWidget.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>
